@@ -1,9 +1,11 @@
-name: PHPUnit
+name: Tests
 
-on: [push]
+on:
+  push:
+  pull_request:
 
 jobs:
-  phpunit:
+  tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -12,6 +14,9 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -19,11 +24,20 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, exif, imagick, bcmath
           coverage: xdebug
 
-      - name: Checkout code
-        uses: actions/checkout@v2
-
       - name: Install Composer dependencies
         run: composer install
 
-      - name: Run tests
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run Vitest (JS tests)
+        run: npm test
+
+      - name: Run PHPUnit
         run: XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text
