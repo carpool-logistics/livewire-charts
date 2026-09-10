@@ -3,6 +3,7 @@
 namespace Asantibanez\LivewireCharts\Tests;
 
 use Asantibanez\LivewireCharts\Formatters;
+use Asantibanez\LivewireCharts\Models\BaseChartModel;
 use Asantibanez\LivewireCharts\Models\LineChartModel;
 use InvalidArgumentException;
 
@@ -573,5 +574,76 @@ class JsonConfigTest extends TestCase
                 'Formatters::known() returned "' . $name . '" but setJsonConfig() rejected it'
             );
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // fromArray() must run the same validation as setJsonConfig()
+    //
+    // jsonConfigFromArray() used to assign the extracted array directly,
+    // which let unsafe keys, raw JS callbacks, and unknown formatter: names
+    // bypass the guards. Restoring through setJsonConfig() closes that path.
+    // -------------------------------------------------------------------------
+
+    /** @test */
+    public function from_array_restores_a_valid_json_config()
+    {
+        $model = new BaseChartModel();
+        $model->fromArray([
+            'jsonConfig' => [
+                'chart.toolbar.show' => false,
+                'tooltip.y.formatter' => Formatters::CURRENCY,
+            ],
+        ]);
+
+        $this->assertSame(false, $model->toArray()['jsonConfig']['chart.toolbar.show']);
+        $this->assertSame(Formatters::CURRENCY, $model->toArray()['jsonConfig']['tooltip.y.formatter']);
+    }
+
+    /** @test */
+    public function from_array_falls_back_to_default_when_json_config_is_absent()
+    {
+        $model = new BaseChartModel();
+        $model->fromArray([]);
+
+        $this->assertSame([], $model->toArray()['jsonConfig']);
+    }
+
+    /** @test */
+    public function from_array_rejects_unsafe_keys()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('unsafe jsonConfig key');
+
+        (new BaseChartModel())->fromArray([
+            'jsonConfig' => [
+                '__proto__.polluted' => 'PWNED',
+            ],
+        ]);
+    }
+
+    /** @test */
+    public function from_array_rejects_raw_callback_strings()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('no longer accepts raw JavaScript strings');
+
+        (new BaseChartModel())->fromArray([
+            'jsonConfig' => [
+                'tooltip.y.formatter' => '(val) => `$${val} million dollars baby!`',
+            ],
+        ]);
+    }
+
+    /** @test */
+    public function from_array_rejects_unknown_formatters()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('unknown formatter');
+
+        (new BaseChartModel())->fromArray([
+            'jsonConfig' => [
+                'tooltip.y.formatter' => 'formatter:nonexistent',
+            ],
+        ]);
     }
 }

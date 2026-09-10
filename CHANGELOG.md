@@ -9,6 +9,8 @@
   Pass a `Formatters::*` constant instead — see README "Advanced Usage - Custom Json Configs".
 - Added `\Asantibanez\LivewireCharts\Formatters` class with `CURRENCY`, `PERCENT`, `INTEGER`, `DECIMAL` constants.
 - `setJsonConfig()` now throws `InvalidArgumentException` on raw JS strings or unknown `formatter:` names.
+- `fromArray()` / `jsonConfigFromArray()` now restore `jsonConfig` through `setJsonConfig()`, so the same
+  validation applies when a chart model is reconstructed from an array.
 - Added `.npmrc` with `ignore-scripts=true` to prevent lifecycle-script execution on `npm install` / `npm ci`
   (Oneleet finding [npm] supply-chain risk).
 - Fixed prototype-pollution vulnerability in `addPathToObjectWithValue` (`helpers.js`): dot-notation

@@ -152,7 +152,7 @@ trait HasJsonConfig
 
     protected function jsonConfigFromArray($array)
     {
-        $this->jsonConfig = data_get($array, 'jsonConfig', $this->defaultJsonConfig());
+        $this->setJsonConfig(data_get($array, 'jsonConfig', $this->defaultJsonConfig()));
     }
 
     protected function jsonConfigToArray()
