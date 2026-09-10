@@ -31,6 +31,12 @@ trait HasJsonConfig
      */
     public function setJsonConfig($jsonConfig)
     {
+        if (!is_array($jsonConfig)) {
+            throw new InvalidArgumentException(
+                'livewire-charts: setJsonConfig() expects an array.'
+            );
+        }
+
         foreach ($jsonConfig as $key => $value) {
             $this->validateUnsafeKey($key);
             $this->validateJsonConfigEntry($key, $value);

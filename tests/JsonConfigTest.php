@@ -646,4 +646,26 @@ class JsonConfigTest extends TestCase
             ],
         ]);
     }
+
+    /** @test */
+    public function from_array_rejects_null_json_config()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('expects an array');
+
+        (new BaseChartModel())->fromArray([
+            'jsonConfig' => null,
+        ]);
+    }
+
+    /** @test */
+    public function from_array_rejects_scalar_json_config()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('expects an array');
+
+        (new BaseChartModel())->fromArray([
+            'jsonConfig' => 'not-an-array',
+        ]);
+    }
 }
