@@ -1,5 +1,30 @@
 # Changelog
 
+## 5.0.0 - 2026-09-02
+
+**Security / breaking change**
+
+- Removed `eval()`-based `jsonConfig` handling in `helpers.js` (Oneleet findings [JS] CWE-95).
+  `setJsonConfig()` no longer accepts raw JavaScript strings (e.g. arrow functions / `function` literals).
+  Pass a `Formatters::*` constant instead — see README "Advanced Usage - Custom Json Configs".
+- Added `\Asantibanez\LivewireCharts\Formatters` class with `CURRENCY`, `PERCENT`, `INTEGER`, `DECIMAL` constants.
+- `setJsonConfig()` now throws `InvalidArgumentException` on raw JS strings or unknown `formatter:` names.
+- `fromArray()` / `jsonConfigFromArray()` now restore `jsonConfig` through `setJsonConfig()`, so the same
+  validation applies when a chart model is reconstructed from an array.
+- `setJsonConfig()` now rejects non-array values (`null`, scalars) with `InvalidArgumentException`.
+- Added `.npmrc` with `ignore-scripts=true` to prevent lifecycle-script execution on `npm install` / `npm ci`
+  (Oneleet finding [npm] supply-chain risk).
+- Fixed prototype-pollution vulnerability in `addPathToObjectWithValue` (`helpers.js`): dot-notation
+  path segments `__proto__`, `constructor`, and `prototype` are now rejected with an error; the reduce
+  accumulator uses `Object.prototype.hasOwnProperty.call` instead of `=== undefined` to avoid inheriting
+  host-object properties. Mirrored in `setJsonConfig()` for developer-experience parity.
+- `Formatters::known()` is now reflection-derived from the class constants, so the validated list cannot
+  drift from the constants by construction. Added a parity test that enforces set equality between the
+  `Formatters::*` constants and the keys of the frozen `formatters.js` registry, closing the remaining
+  gap where a PHP constant could be accepted with no JS implementation behind it.
+- CI workflow (`phpunit.yml`) now runs Vitest (JS tests) in addition to PHPUnit, with Node 20 and
+  `npm ci --ignore-scripts`. Workflow renamed to `Tests`; `pull_request` trigger added.
+
 ## 4.1.0 - 2024-08-22
 - Added Radial chart
 
