@@ -1,6 +1,7 @@
 # Changelog
 
 ## 5.0.0 - 2026-09-02
+- Added Laravel 13 support
 
 **Security / breaking change**
 

@@ -89,6 +89,9 @@ trait HasJsonConfig
     {
         if (is_array($value)) {
             foreach ($value as $k => $v) {
+                if (is_string($k)) {
+                    $this->validateUnsafeKey($k);
+                }
                 $this->validateJsonConfigEntry($key . '.' . $k, $v);
             }
             return;
@@ -126,7 +129,7 @@ trait HasJsonConfig
         // "asyncfunction(...)" is not misidentified as the async keyword.
         // Identifier alternatives require [a-zA-Z_$] as the first character
         // so digit-leading strings like "2024 => 2025" are not rejected.
-        if (preg_match('/^(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*(async(?=[\s(\/])(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*)?(function(?![\w$])(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*\*?(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*[\w$]*(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*\(|(?P<P>\((?:[^()]*|(?P>P))*\))(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*=>|[a-zA-Z_$][\w$]*(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*=>)/', $value)) {
+        if (preg_match('/^(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*(async(?=[\s(\/])(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*)?(function(?![\w$])(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*\*?(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*[\w$]*(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*\(|(?P<P>\((?:[^()]*|(?P>P))*\))(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*=>|[a-zA-Z_$][\w$]*(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*)*=>)/', $value) !== 0) {
             throw new InvalidArgumentException(
                 "livewire-charts: setJsonConfig() no longer accepts raw JavaScript strings. " .
                 "Use a Formatters constant instead, e.g. Formatters::CURRENCY. " .
