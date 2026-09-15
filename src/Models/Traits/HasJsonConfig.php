@@ -97,8 +97,15 @@ trait HasJsonConfig
             return;
         }
 
-        if (!is_string($value)) {
+        if (is_int($value) || is_float($value) || is_bool($value)) {
             return;
+        }
+
+        if (!is_string($value)) {
+            throw new InvalidArgumentException(
+                "livewire-charts: invalid jsonConfig value for key \"" . $key . "\". " .
+                "Expected a scalar (int, float, bool, string) or array; got " . gettype($value) . "."
+            );
         }
 
         // Reject strings that open with JS callback syntax, with or without

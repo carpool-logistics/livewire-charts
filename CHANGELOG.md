@@ -23,7 +23,7 @@
   drift from the constants by construction. Added a parity test that enforces set equality between the
   `Formatters::*` constants and the keys of the frozen `formatters.js` registry, closing the remaining
   gap where a PHP constant could be accepted with no JS implementation behind it.
-- CI workflow (`phpunit.yml`) now runs Vitest (JS tests) in addition to PHPUnit, with Node 20 and
+- CI workflow (`tests.yml`) now runs Vitest (JS tests) in addition to PHPUnit, with Node 20 and
   `npm ci --ignore-scripts`. Workflow renamed to `Tests`; `pull_request` trigger added.
 
 ## 4.1.0 - 2024-08-22
