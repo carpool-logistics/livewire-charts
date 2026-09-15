@@ -14,7 +14,8 @@ export const addPathToObjectWithValue = (obj, path, value) => {
     const pointer = pList.reduce((accumulator, currentValue) => {
         if (!Object.prototype.hasOwnProperty.call(accumulator, currentValue)
             || typeof accumulator[currentValue] !== 'object'
-            || accumulator[currentValue] === null) {
+            || accumulator[currentValue] === null
+            || Array.isArray(accumulator[currentValue])) {
             accumulator[currentValue] = {}
         }
         return accumulator[currentValue]
@@ -46,7 +47,12 @@ const resolveConfigValue = (key, value) => {
 
     if (value !== null && typeof value === 'object') {
         return Object.fromEntries(
-            Object.entries(value).map(([k, v]) => [k, resolveConfigValue(key + '.' + k, v)])
+            Object.entries(value).map(([k, v]) => {
+                if (UNSAFE_KEYS.includes(k)) {
+                    throw new Error('livewire-charts: unsafe jsonConfig key "' + key + '.' + k + '".')
+                }
+                return [k, resolveConfigValue(key + '.' + k, v)]
+            })
         )
     }
 
